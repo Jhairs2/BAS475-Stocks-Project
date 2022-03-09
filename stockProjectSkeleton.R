@@ -79,7 +79,7 @@ server <- function(input, output, session) {
     
     # Creating interactive plot for stock at specified range
   output$plot <- renderPlotly ({
-    req(chosenStock(), stockInfo)
+    req(input$chooseStock)
       P1 <-  chosenStock() %>%
         ggplot(aes(x = index(stockInfo), y = stockInfo[,4], 
                    text = paste("Date: ", date(stockInfo),
@@ -95,7 +95,7 @@ server <- function(input, output, session) {
   })
   
   output$candleStick <- renderPlotly({
-    req(chosenStock(), stockInfo)
+    req(input$chooseStock)
 
     
     dat <- as.data.frame(stockInfo)
