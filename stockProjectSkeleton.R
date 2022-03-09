@@ -88,7 +88,7 @@ server <- function(input, output, session) {
         geom_line(color = "orange") + 
         labs( title =  paste("Closing Price for", input$chooseStock),
               y = "Stock Price",
-              x = "Date")
+              x = "")
       
       ggplotly(P1, tooltip = "text")
 
