@@ -58,47 +58,11 @@ ui <- dashboardPage( skin = "yellow",
                        
     ) 
 
-                     
-                     dashboardSidebar(
-                       # User Will choose stock Here
-                       selectizeInput("chooseStock", choices = NULL, label = "Choose a stock", selected = stockNames[1]),
-                       
-                       # User can choose date range for stock
-                       dateRangeInput(
-                         "chooseDate",
-                         label = "Choose a Date"
-                       )
-                       
-                     ),
-                     
-                     dashboardBody( 
-                       
-                       shinyDashboardThemes( theme = "grey_dark" ),
-                       
-                       plotlyOutput("plot"), 
-                       
-                       plotlyOutput("candleStick")
-                     )
-
 )
-
 
 
 server <- function(input, output, session) {
   
-  # Updates stock choices and date selections in server
-  updateSelectizeInput(session, "chooseStock", choices = stockNames, selected = stockNames[1], server = T)
-  updateDateRangeInput(session, "chooseDate",  start = start, end = Sys.Date(), max = Sys.Date())
-  
-  
-  # Creating variable for stock information. The '<<-' is to make the variable global
-  chosenStock <- reactive( {
-    stockInfo <<- getSymbols(input$chooseStock, src = "yahoo", from = input$chooseDate, end = input$chooseDate, 
-                             auto.assign = FALSE)
-    names(stockInfo) <<- clean_names(stockInfo)
-    stockInfo
-    
-
     # Updates stock choices and date selections in server
     updateSelectizeInput(session, "chooseStock", choices = stockNames, selected = stockNames[1], server = T)
     updateDateRangeInput(session, "chooseDate",  start = start, end = Sys.Date(), min = start, max = Sys.Date())
@@ -130,20 +94,6 @@ server <- function(input, output, session) {
 
   })
   
-  # # Creating interactive plot for stock at specified range
-  output$plot <- renderPlotly ({
-    req(chosenStock(), stockInfo)
-    P1 <-  chosenStock() %>% 
-      
-      ggplot(aes(x = date(stockInfo), y = stockInfo[,4])) +
-      geom_line() +
-      labs( title =  paste("Closing Price for", input$chooseStock),
-            y = "Stock Price",
-            x = "Date")
-    ggplotly(P1)
-
-  })
-  
   output$candleStick <- renderPlotly({
     req(chosenStock(), stockInfo)
 
@@ -160,21 +110,6 @@ server <- function(input, output, session) {
     fig <- fig %>% rangeslider()
     fig
   })
-
-    
-    dat <- as.data.frame(stockInfo)
-    dat$date <- index(stockInfo)
-    dat <- subset(dat, date >= "2016-01-01")
-    
-    fig <- plot_ly(dat, x = ~date, xend = ~date, color = ~Close > Open,
-                   colors = c("red", "forestgreen"), hoverinfo = "none") 
-    fig <- fig %>% add_segments(y = ~Low, yend = ~High, size = I(1)) 
-    fig <- fig %>% add_segments(y = ~Open, yend = ~Close, size = I(3)) 
-    fig <- fig %>% layout(showlegend = FALSE, yaxis = list(title = "Price")) 
-    fig <- fig %>% rangeslider()
-    fig
-  })
-  
   
 }
 
