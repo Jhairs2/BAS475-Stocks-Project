@@ -10,7 +10,6 @@ library(tidyquant)
 library(shinyWidgets)
 library(dashboardthemes)
 
-
 # Configuring settings as per tidyquant tutorial
 options("getSymbols.warning4.0"=FALSE)
 options("getSymbols.yahoo.warning"=FALSE)
