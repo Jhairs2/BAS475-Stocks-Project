@@ -94,7 +94,7 @@ server <- function(input, output, session) {
   
   # Creating variable for stock information. The '<<-' is to make the variable global
   chosenStock <- reactive( {
-    stockInfo <<- getSymbols(input$chooseStock, src = "yahoo", from = input$chooseDate[1], end = input$chooseDate[2], 
+    stockInfo <<- getSymbols(input$chooseStock, src = "yahoo", from = input$chooseDate[1], to = input$chooseDate[2], 
                              auto.assign = FALSE)
     names(stockInfo) <<- clean_names(stockInfo)
     stockInfo
