@@ -62,11 +62,11 @@ ui <- dashboardPage( skin = "yellow",
                        tabItems(
                          tabItem("tab1", 
                                  # While plot is being created a loading screen spinner will appear
-                                 withSpinner(
+                                 withSpinner( color = "orange",
                                    plotlyOutput("plot")
                                  ),
                                  
-                                 withSpinner(
+                                 withSpinner( color = "orange",
                                    plotlyOutput("candleStick")
                                  )),
                          
@@ -111,9 +111,9 @@ server <- function(input, output, session) {
                               "<br>Stock Price: $", stockInfo[,4]),
                  group = "Date")) +
       geom_line(color = "orange") + 
-      labs( title =  paste("Closing Price for", input$chooseStock),
+      labs( title =  paste("Changing Stock Price for", input$chooseStock),
             y = "Stock Price",
-            x = "")
+            x = "") + theme(plot.title = element_text(hjust = 0.5))
     
     ggplotly(P1, tooltip = "text")
     
