@@ -33,6 +33,13 @@ ui <- dashboardPage( skin = "yellow",
                      
                      dashboardSidebar(
                        
+                       
+                       # Making menu tabs
+                       sidebarMenu( id = "tabs",
+                                    menuItem("Plots", tabName = "tab1", icon = icon("fas fa-chart-bar")),
+                                    menuItem("Ticker Lookup", tabName = "tab2", icon = icon("info-circle")),
+                                    
+                                    
                        # User Will choose stock Here
                        selectizeInput("chooseStock", choices = NULL, label = h3("Choose a stock")),
                        
@@ -42,14 +49,8 @@ ui <- dashboardPage( skin = "yellow",
                          label = h3("Choose a Date")
                          
                          
-                       ),
-                       
-                       #Making menu tabs
-                       sidebarMenu( id = "tabs",
-                                    menuItem("Plots", tabName = "tab1", icon = icon("fas fa-chart-bar")),
-                                    menuItem("Ticker Lookup", tabName = "tab2", icon = icon("info-circle"))
-                                    
-                       )
+                       ))
+
                        
                      ),
                      
@@ -60,7 +61,7 @@ ui <- dashboardPage( skin = "yellow",
                        # Setting content for tabs
                        tabItems(
                          tabItem("tab1", 
-                       # While plot is being created a loading screen spinner will appear
+                                 # While plot is being created a loading screen spinner will appear
                                  withSpinner(
                                    plotlyOutput("plot")
                                  ),
@@ -70,10 +71,10 @@ ui <- dashboardPage( skin = "yellow",
                                  )),
                          
                          tabItem("tab2", 
-                                
+                                 
                                  dataTableOutput("lookup")
                          )
-                        
+                         
                          
                        ) 
                        
