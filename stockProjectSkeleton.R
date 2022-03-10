@@ -38,6 +38,7 @@ ui <- dashboardPage( skin = "yellow",
                        sidebarMenu( id = "tabs",
                                     menuItem("Plots", tabName = "tab1", icon = icon("fas fa-chart-bar")),
                                     menuItem("Ticker Lookup", tabName = "tab2", icon = icon("info-circle")),
+                                    menuItem("S&P 500", tabName = "tab3", icon = icon("cog")),
                                     
                                     
                        # User Will choose stock Here
@@ -73,7 +74,11 @@ ui <- dashboardPage( skin = "yellow",
                          tabItem("tab2", 
                                  
                                  dataTableOutput("lookup")
-                         )
+                         ),
+                         
+                         tabItem("tab3",
+                                 withSpinner( color = "orange",
+                                              plotlyOutput("SANDP")))
                          
                          
                        ) 
@@ -81,7 +86,7 @@ ui <- dashboardPage( skin = "yellow",
                      )
 )
 
-tabnames <- c("tab1, tab2")
+tabnames <- c("tab1, tab2", "tab3")
 
 server <- function(input, output, session) {
   
@@ -140,6 +145,17 @@ server <- function(input, output, session) {
   output$lookup <- renderDataTable({
     stockNames
   })
+  
+  INTEREST_STOCKS_DF <- as.data.frame(INTEREST_STOCKS)
+  INTEREST_STOCKS_DF$date <- index(INTEREST_STOCKS)
+  p <- ggplot(INTEREST_STOCKS_DF, aes(date, GSPC.Close)) + 
+    geom_line(color = "orange")
+  
+  output$SANDP <- renderPlotly({p})
+  
+ 
+  
+  ggplotly(p)
   
 }
 
