@@ -10,8 +10,8 @@ library(shinyWidgets)
 library(dashboardthemes)
 
 # Configuring settings as per tidyquant tutorial
-options("getSymbols.warning4.0"=FALSE)
-options("getSymbols.yahoo.warning"=FALSE)
+options("getSymbols.warning4.0" = FALSE)
+options("getSymbols.yahoo.warning" = FALSE)
 
 
 
@@ -23,124 +23,124 @@ clean_names <- function(stocks) {
 
 
 # Getting stock symbols and creating date range
-stockNames <- stockSymbols()[,1:2]
+stockNames <- stockSymbols()[, 1:2]
 start <- as.Date("2010-01-01")
 end <- Sys.Date()
 
-ui <- dashboardPage( skin = "yellow", 
-                     
-                     dashboardHeader( title = "Stock Analysis"),
-                     
+ui <- dashboardPage(skin = "yellow",
+
+                     dashboardHeader(title = "Stock Analysis"),
+
                      dashboardSidebar(
-                       
-                       
-                       # Making menu tabs
-                       sidebarMenu( id = "tabs",
+
+
+# Making menu tabs
+                       sidebarMenu(id = "tabs",
                                     menuItem("Plots", tabName = "tab1", icon = icon("fas fa-chart-bar")),
                                     menuItem("Ticker Lookup", tabName = "tab2", icon = icon("info-circle")),
                                     menuItem("S&P 500", tabName = "tab3", icon = icon("cog")),
-                                    
-                                    
-                       # User Will choose stock Here
+
+
+# User Will choose stock Here
                        selectizeInput("chooseStock", choices = NULL, label = h3("Choose a stock")),
-                       
-                       # User can choose date range for stock
+
+# User can choose date range for stock
                        dateRangeInput(
                          "chooseDate",
                          label = h3("Choose a Date")
-                         
-                         
+
+
                        ))
 
-                       
+
                      ),
-                     
+
                      dashboardBody(
-                       shinyDashboardThemes( theme = "grey_dark" ),
-                       
-                       
-                       # Setting content for tabs
+                       shinyDashboardThemes(theme = "grey_dark"),
+
+
+# Setting content for tabs
                        tabItems(
-                         tabItem("tab1", 
-                                 # While plot is being created a loading screen spinner will appear
-                                 withSpinner( color = "orange",
+                         tabItem("tab1",
+# While plot is being created a loading screen spinner will appear
+                                 withSpinner(color = "orange",
                                    plotlyOutput("plot")
                                  ),
-                                 
-                                 withSpinner( color = "orange",
+
+                                 withSpinner(color = "orange",
                                    plotlyOutput("candleStick")
                                  )),
-                         
-                         tabItem("tab2", 
-                                 
+
+                         tabItem("tab2",
+
                                  dataTableOutput("lookup")
                          ),
-                         
+
                          tabItem("tab3",
-                                 withSpinner( color = "orange",
+                                 withSpinner(color = "orange",
                                               plotlyOutput("SANDP")))
-                         
-                         
-                       ) 
-                       
+
+
+                       )
+
                      )
 )
 
 tabnames <- c("tab1, tab2", "tab3")
 
 server <- function(input, output, session) {
-  
+
   #Keeps track of tabs
   active <- reactiveValues(tab = 1)
-  
+
   # Updates stock choices and date selections in server
   updateSelectizeInput(session, "chooseStock", choices = stockNames$Symbol, selected = stockNames$Symbol[1], server = T)
-  updateDateRangeInput(session, "chooseDate",  start = start, end = Sys.Date(), min = start, max = Sys.Date())
-  
-  
+  updateDateRangeInput(session, "chooseDate", start = start, end = Sys.Date(), min = start, max = Sys.Date())
+
+
   # Creating variable for stock information. The '<<-' is to make the variable global
-  chosenStock <- reactive( {
-    stockInfo <<- getSymbols(input$chooseStock, src = "yahoo", from = input$chooseDate[1], to = input$chooseDate[2], 
+  chosenStock <- reactive({
+    stockInfo <<- getSymbols(input$chooseStock, src = "yahoo", from = input$chooseDate[1], to = input$chooseDate[2],
                              auto.assign = FALSE)
     names(stockInfo) <<- clean_names(stockInfo)
     stockInfo
-    
+
   })
-  
+
   # Creating interactive plot for stock at specified range
-  output$plot <- renderPlotly ({
+  output$plot <- renderPlotly({
     req(input$chooseStock)
-    P1 <-  chosenStock() %>%
-      ggplot(aes(x = index(stockInfo), y = stockInfo[,4], 
+    P1 <- chosenStock() %>%
+      ggplot(aes(x = index(stockInfo), y = stockInfo[, 4],
                  text = paste("Date: ", date(stockInfo),
-                              "<br>Stock Price: $", stockInfo[,4]),
+                              "<br>Stock Price: $", stockInfo[, 4]),
                  group = "Date")) +
-      geom_line(color = "orange") + 
-      labs( title =  paste("Changing Stock Price for", input$chooseStock),
+      geom_line(color = "orange") +
+      labs(title = paste("Changing Stock Price for", input$chooseStock),
             y = "Stock Price",
             x = "") + theme(plot.title = element_text(hjust = 0.5))
-    
+
     ggplotly(P1, tooltip = "text")
-    
+
   })
-  
+
   output$candleStick <- renderPlotly({
     req(input$chooseStock)
-    
-    
+
+
     dat <- as.data.frame(stockInfo)
     dat$date <- index(stockInfo)
     dat <- subset(dat, date >= "2016-01-01")
-    
+
     fig <- plot_ly(dat, x = ~date, xend = ~date, color = ~Close > Open,
-                   colors = c("red", "forestgreen"), hoverinfo = "none") 
-    fig <- fig %>% add_segments(y = ~Low, yend = ~High, size = I(1)) 
-    fig <- fig %>% add_segments(y = ~Open, yend = ~Close, size = I(3)) 
-    fig <- fig %>% layout(showlegend = FALSE, yaxis = list(title = "Price")) 
+                   colors = c("red", "forestgreen"), hoverinfo = "none")
+    fig <- fig %>% add_segments(y = ~Low, yend = ~High, size = I(1))
+    fig <- fig %>% add_segments(y = ~Open, yend = ~Close, size = I(3))
+    fig <- fig %>% layout(showlegend = FALSE, yaxis = list(title = "Price"))
     fig <- fig %>% rangeslider()
     fig
   })
-  
+
   #Shows stock ticker and name for reference
   output$lookup <- renderDataTable({
     stockNames
@@ -152,13 +152,13 @@ server <- function(input, output, session) {
   )
   INTEREST_STOCKS_DF <- as.data.frame(INTEREST_STOCKS)
   INTEREST_STOCKS_DF$date <- index(INTEREST_STOCKS)
-  p <- ggplot(INTEREST_STOCKS_DF, aes(date, GSPC.Close)) + 
+  p <- ggplot(INTEREST_STOCKS_DF, aes(date, GSPC.Close)) +
     geom_line(color = "orange")
-  
-  output$SANDP <- renderPlotly({p})
-  
- 
-  
+
+  output$SANDP <- renderPlotly({ p })
+
+
+
   ggplotly(p)
 }
 
