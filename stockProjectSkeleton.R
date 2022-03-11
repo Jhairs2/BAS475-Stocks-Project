@@ -145,7 +145,11 @@ server <- function(input, output, session) {
   output$lookup <- renderDataTable({
     stockNames
   })
-  
+  INTEREST_STOCKS <- getSymbols(
+    "^GSPC",
+    src = "yahoo",
+    auto.assign = FALSE
+  )
   INTEREST_STOCKS_DF <- as.data.frame(INTEREST_STOCKS)
   INTEREST_STOCKS_DF$date <- index(INTEREST_STOCKS)
   p <- ggplot(INTEREST_STOCKS_DF, aes(date, GSPC.Close)) + 
@@ -156,7 +160,6 @@ server <- function(input, output, session) {
  
   
   ggplotly(p)
-  
 }
 
 shinyApp(ui, server)
