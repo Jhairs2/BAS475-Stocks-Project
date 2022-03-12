@@ -64,7 +64,7 @@ ui <- dashboardPage(skin = "yellow",
 # Setting content for tabs
                        tabItems(
                          tabItem("tab1",
-# While plot is being created a loading screen spinner will appear
+# While output is being created a loading screen spinner will appear
                                  withSpinner(color = "orange",
                                    plotlyOutput("plot")
                                  ),
@@ -170,13 +170,14 @@ server <- function(input, output, session) {
   output$SANDP <- renderPlotly({ p })
   ggplotly(p)
 
+  # Creating influece plot from linear model
   output$compare <- renderPlot({
 
     M <- lm(Close ~ date(stockInfo), data = chosenStock())
     influence_plot(M)
 
   })
-
+  # Showing summary for linear model
   output$summary <- renderPrint({
 
     M <- lm(Close ~ date(stockInfo), data = chosenStock())
