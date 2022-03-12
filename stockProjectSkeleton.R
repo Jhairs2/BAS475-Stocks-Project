@@ -8,6 +8,7 @@ library(tidyverse)
 library(tidyquant)
 library(shinyWidgets)
 library(dashboardthemes)
+library(regclass)
 
 # Configuring settings as per tidyquant tutorial
 options("getSymbols.warning4.0" = FALSE)
@@ -36,9 +37,10 @@ ui <- dashboardPage(skin = "yellow",
 
 # Making menu tabs
                        sidebarMenu(id = "tabs",
-                                    menuItem("Plots", tabName = "tab1", icon = icon("fas fa-chart-bar")),
+                                    menuItem("Interactive Plots", tabName = "tab1", icon = icon("fas fa-chart-bar")),
                                     menuItem("Ticker Lookup", tabName = "tab2", icon = icon("info-circle")),
                                     menuItem("S&P 500", tabName = "tab3", icon = icon("cog")),
+                                    menuItem("Linear Model View", tabName = "tab4", icon = icon("chart-line")),
 
 
 # User Will choose stock Here
@@ -78,15 +80,25 @@ ui <- dashboardPage(skin = "yellow",
 
                          tabItem("tab3",
                                  withSpinner(color = "orange",
-                                              plotlyOutput("SANDP")))
+                                              plotlyOutput("SANDP"))),
 
 
+                         tabItem("tab4",
+                                 withSpinner(color = "orange",
+                                fluidRow(plotOutput("compare")
+                                 )
+                                ),
+                                 withSpinner(color = "orange",
+                                verbatimTextOutput("summary")
+                                 )
+
+                       )
                        )
 
                      )
 )
 
-tabnames <- c("tab1, tab2", "tab3")
+tabnames <- c("tab1, tab2", "tab3", "tab4")
 
 server <- function(input, output, session) {
 
@@ -156,10 +168,23 @@ server <- function(input, output, session) {
     geom_line(color = "orange")
 
   output$SANDP <- renderPlotly({ p })
-
-
-
   ggplotly(p)
+
+  output$compare <- renderPlot({
+
+    M <- lm(Close ~ date(stockInfo), data = chosenStock())
+    influence_plot(M)
+
+  })
+
+  output$summary <- renderPrint({
+
+    M <- lm(Close ~ date(stockInfo), data = chosenStock())
+    print(summary(M))
+
+  })
+
+
 }
 
 shinyApp(ui, server)
