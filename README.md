@@ -7,7 +7,8 @@ This Shiny app was created within R-Studio. This app is designed to allow the us
 3) A Ticker look up so that the user may learn the symbol associated with a publicly traded company. GM for General Motors, AAPL for Apple, etc.
 4) A standard graph of the closing price of the selected stock listed on the S&P 500 with data sourced from Yahoo.
 5) Shows influence plot and a summary of the linear model data for the selected stock.
-6) All plots found within this application give the user the ability to select a range of dates for their chosen stock.
+6) Has a what-if scenario where the app predicts how much profit an investment would generate if made at the earliest date in the selected stock data,
+7) All plots found within this application give the user the ability to select a range of dates for their chosen stock.
 
 
 We hope that this tool is useful for anyone trying to research stocks and would love feedback.
